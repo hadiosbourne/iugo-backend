@@ -1,0 +1,415 @@
+swagger: "2.0"
+info:
+  description: "IUGO API"
+  version: "1.0.0"
+  title: "IUGO backend Service"
+# host: "aa6e5850.ngrok.io"
+host: "localhost:5000"
+basePath: "/v1"
+schemes:
+- "http"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+tags:
+- name: Timestamp
+  description: "Current unix timestamp"
+- name: Transaction
+  description: "User transactions related routes"
+- name: Score
+  description: "User score related routes"
+- name: Leaderboard
+  description: "Leaderboard related routes"
+- name: User
+  description: "User related routes"
+- name: Reset
+  description: "Reset related routes"
+paths:
+  /Timestamp:
+    get:
+      x-swagger-router-controller: "TimestampStatus"
+      operationId: "getTimestamp"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "The current unix timestamp will be returned"
+          schema:
+            $ref: "#/definitions/server_timestamps_response"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/server_error_model"
+      tags:
+      - "Timestamp"
+      summary: "Gets the current unix timestamp"
+  /Transaction:
+    post:
+      x-swagger-router-controller: Transaction
+      operationId: postUserTransaction
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/user_transaction_body_param"
+      responses:
+        201:
+          description: "user transaction was logged"
+          schema:
+            $ref: "#/definitions/user_transaction_response_def"
+      tags:
+        - Transaction
+      summary: Logs user transaction
+  /TransactionStats:
+    post:
+      x-swagger-router-controller: Transaction
+      operationId: postUserTransactionStats
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/user_transaction_stats_body_param"
+      responses:
+        200:
+          description: "user transaction was logged"
+          schema:
+            $ref: "#/definitions/user_transaction_stats_response_def"
+      tags:
+        - Transaction
+      summary: Returns user transaction stats
+  /ScorePost:
+    post:
+      x-swagger-router-controller: Score
+      operationId: postScore
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/user_score_post_body_param"
+      responses:
+        200:
+          description: "user transaction was logged"
+          schema:
+            $ref: "#/definitions/user_score_post_response_def"
+      tags:
+        - Score
+      summary: Returns user score
+  /LeaderboardGet:
+    post:
+      x-swagger-router-controller: Leaderboard
+      operationId: getLeaderboard
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/leaderboard_get_body_param"
+      responses:
+        200:
+          description: "leader board score ranking"
+          schema:
+            $ref: "#/definitions/leaderboard_get_response_def"
+      tags:
+        - Leaderboard
+      summary: Returns user score
+  /UserSave:
+    post:
+      x-swagger-router-controller: User
+      operationId: saveUser
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/user_save_body_param"
+      responses:
+        200:
+          description: "user save result"
+          schema:
+            $ref: "#/definitions/user_save_response_def"
+      tags:
+        - User
+      summary: Saves user
+  /UserLoad:
+    post:
+      x-swagger-router-controller: User
+      operationId: loadUser
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/user_load_body_param"
+      responses:
+        200:
+          description: "user save result"
+          schema:
+            $ref: "#/definitions/user_load_response_def"
+      tags:
+        - User
+      summary: Loads user
+  /Reset:
+    get:
+      x-swagger-router-controller: Reset
+      operationId: resetDB
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/reset_param"
+      responses:
+        200:
+          description: "user save result"
+          schema:
+            $ref: "#/definitions/reset_response_def"
+      tags:
+        - Reset
+      summary: Resets the given db
+parameters:
+  reset_param:
+    name: Database
+    in: query
+    required: true
+    type: string
+    enum:
+      - User
+      - Transaction
+      - Score
+  user_transaction_body_param:
+    name: Transaction
+    in: body
+    description: "The user transaction object"
+    schema:
+      $ref: "#/definitions/user_transaction_def"
+  user_transaction_stats_body_param:
+    name: TransactionStats
+    in: body
+    description: "The user details for transaction"
+    schema:
+      $ref: "#/definitions/user_transaction_stats_def"
+  user_score_post_body_param:
+    name: ScorePost
+    in: body
+    description: "The user score post"
+    schema:
+      $ref: "#/definitions/user_score_post_def"
+  leaderboard_get_body_param:
+    name: getLeaderboard
+    in: body
+    description: "The leader board get"
+    schema:
+      $ref: "#/definitions/leaderboard_get_def"
+  user_save_body_param:
+    name: saveUser
+    in: body
+    description: "User record to save"
+    schema:
+      $ref: "#/definitions/user_save_def"
+  user_load_body_param:
+    name: loadUser
+    in: body
+    description: "User record to load"
+    schema:
+      $ref: "#/definitions/user_load_def"
+definitions:
+  server_error_model:
+    type: "object"
+    required:
+    - "message"
+    properties:
+      message:
+        type: "string"
+      exception:
+        $ref: "#/definitions/exception_model"
+  server_timestamps_response:
+    type: "object"
+    required:
+    - "Timestamp"
+    properties:
+      Timestamp:
+        type: "integer"
+  exception_model:
+    type: "object"
+  user_transaction_def:
+    description: user transaction
+    type: object
+    required:
+      - TransactionId
+      - UserId
+      - CurrencyAmount
+      - Verifier
+    properties:
+      TransactionId:
+        type: integer
+        default: 1
+        minimum: 1
+      UserId:
+        type: integer
+        default: 1
+        minimum: 1
+      CurrencyAmount:
+        type: integer
+      Verifier:
+        type: string
+  user_transaction_response_def:
+    type: object
+    properties:
+      Success:
+        type: boolean
+        default: true
+  user_score_post_response_def:
+    type: object
+    properties:
+      UserId:
+        type: integer
+        default: 1
+        minimum: 1
+      LeaderboardId:
+        type: integer
+        default: 1
+        minimum: 1
+      Score:
+        type: integer
+      Rank:
+        type: integer
+        default: 1
+        minimum: 1
+  user_transaction_stats_response_def:
+    type: object
+    properties:
+      UserId:
+        type: integer
+        default: 1
+        minimum: 1
+      CurrencySum:
+        type: integer
+        default: 1
+        minimum: 1
+      TransactionCount:
+        type: integer
+        default: 1
+        minimum: 1
+  user_transaction_stats_def:
+    type: object
+    required:
+      - UserId
+    properties:
+      UserId:
+        type: integer
+        minimum: 1
+  user_score_post_def:
+    description: user score post
+    type: object
+    required:
+      - UserId
+      - LeaderboardId
+      - Score
+    properties:
+      UserId:
+        type: integer
+        default: 1
+        minimum: 1
+      LeaderboardId:
+        type: integer
+        default: 1
+        minimum: 1
+      Score:
+        type: integer
+  leaderboard_get_def:
+    description: user score post
+    type: object
+    required:
+      - UserId
+      - LeaderboardId
+      - Offset
+      - Limit
+    properties:
+      UserId:
+        type: integer
+        default: 1
+        minimum: 1
+      LeaderboardId:
+        type: integer
+        default: 1
+        minimum: 1
+      Offset:
+        type: integer
+      Limit:
+        type: integer
+        default: 1
+        minimum: 1
+  leaderboard_get_response_def:
+    type: object
+    properties:
+      UserId:
+        type: integer
+        default: 1
+        minimum: 1
+      LeaderboardId:
+        type: integer
+        default: 1
+        minimum: 1
+      Score:
+        type: integer
+      Rank:
+        type: integer
+        default: 1
+        minimum: 1
+      Entries:
+        type: array
+        items:
+          $ref: "#/definitions/leaderboard_get_entries_def"
+  leaderboard_get_entries_def:
+    description: user score post
+    type: object
+    properties:
+      UserId:
+        type: integer
+        default: 1
+        minimum: 1
+      Score:
+        type: integer
+      Rank:
+        type: integer
+        default: 1
+        minimum: 1
+  user_save_def:
+    description: user score post
+    type: object
+    properties:
+      UserId:
+        type: integer
+        default: 1
+        minimum: 1
+      Data:
+        type: object
+  user_save_response_def:
+    type: object
+    properties:
+      Success:
+        type: boolean
+        default: true
+  user_load_def:
+    type: object
+    required:
+      - UserId
+    properties:
+      UserId:
+        type: integer
+        default: 1
+        minimum: 1
+  user_load_response_def:
+    type: object
+  reset_response_def:
+    type: object
+    properties:
+      Success:
+        type: boolean
+        default: true

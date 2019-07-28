@@ -1,0 +1,16 @@
+{
+  "server": {
+    "port": 5000
+  },
+  "mongo": {
+    "database_host": "mongodb://localhost:27017/IugoDev",
+    "options": {
+      "config": {
+        "autoIndex": false
+      },
+      "useMongoClient": true
+    }
+  },
+  "secret_key": "NwvprhfBkGuPJnjJp77UPJWJUpgC7mLz",
+  "swagger_ui_config": {}
+}
