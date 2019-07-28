@@ -3,7 +3,7 @@
     "port": 5000
   },
   "mongo": {
-    "database_host": "mongodb://localhost:27017/IugoDev",
+    "database_host": "mongodb://dev:maf123@cluster0-shard-00-00-msw1p.mongodb.net:27017,cluster0-shard-00-01-msw1p.mongodb.net:27017,cluster0-shard-00-02-msw1p.mongodb.net:27017/IugoDev?replicaSet=Cluster0-shard-0&ssl=true&authSource=admin",
     "options": {
       "config": {
         "autoIndex": false

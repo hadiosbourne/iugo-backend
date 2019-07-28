@@ -7,7 +7,7 @@ const jsyaml = require('js-yaml');
 const fs = require('fs');
 const config = require('config');
 const _ = require('lodash');
-const serverPort = (config.has('server.port')) ? config.get('server.port') : 5000;
+const serverPort =  process.env.PORT || 5000;
 const mongoose = require('mongoose');
 const cors = require('cors');
 
