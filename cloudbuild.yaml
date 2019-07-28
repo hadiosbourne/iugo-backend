@@ -1,0 +1,40 @@
+steps:
+# Pull the docker compose
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['pull', 'docker/compose:1.23.2']
+
+# Build mongo
+- name: 'gcr.io/cloud-builders/docker'
+  entrypoint: 'bash'
+  args: [ '-c', 'docker build' ]
+  waitFor: ["-"]
+
+# Build iugo
+- name: 'gcr.io/cloud-builders/docker'
+  entrypoint: 'bash'
+  args: [ '-c', 'docker build --build-arg PRIVATE_SSH_KEY="$$PASSWORD" -t iugo .' ]
+  secretEnv: ['PASSWORD']
+  waitFor: ["-"]
+
+# Run the app and dependencies in the background using docker-compose.
+# We have compose exit with the same code as iugo
+- name: 'docker/compose:1.23.2'
+  args: ['up', '--exit-code-from', 'iugo']
+  env:
+  - 'PROJECT_ID=$PROJECT_ID'
+  - 'NODE_ENV=ci'
+
+- name: 'gcr.io/cloud-builders/docker'
+  entrypoint: 'bash'
+  args:
+    - 'pass the necessary args'
+
+
+# Run slack bot notifier - we can notify slack when the build was succesful
+- name: 
+
+# Secrets
+secrets:
+- kmsKeyName: projects/registry
+  secretEnv:
+    PASSWORD: 'somePassword'

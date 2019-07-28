@@ -1,0 +1,13 @@
+{
+  "mocha": {
+    "reporter": "spec"
+  },  
+  "mongo": {
+    "database_host": "mongodb://localhost:27017/IugoTesting",
+    "options": {
+      "config": {
+        "autoIndex": false
+      }
+    }
+  }
+}
