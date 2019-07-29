@@ -2,7 +2,7 @@
 const {Score} = require('../models');
 const _ = require('lodash');
 const {getRank} = require('../helpers/RankHelper');
-
+const async = require('async');
 /**
  * Create an instance of the User Transaction service
  *
@@ -27,31 +27,54 @@ class UserTransactionService {
    */
   postScore(req, res, next) {
     let payload = req.swagger.params.ScorePost.value;
-    _findOneScoreRecord({'LeaderboardId': payload['LeaderboardId'], 'UserId': payload['UserId']}, (findError, findRecord)=>{
-      if(findError) {
-        res.status(500).json(findError);
-        return next();
-      }
-      _buildRankRecord(payload, findRecord, (buildRankError, rankRecord)=>{
-        if(buildRankError) {
-          res.status(500).json(buildRankError);
-          return next();
-        }
+    async.autoInject({
+      findOneScoreRecord: function(cb) {
+        _findOneScoreRecord({
+          'LeaderboardId': payload['LeaderboardId'], 
+          'UserId': payload['UserId']}, 
+          (findError, findRecord)=>{
+            if(findError) {
+              return cb(findError);
+            }
+            return cb(null, findRecord)
+        })      
+      },
+      buildRankRecord: function(findOneScoreRecord, cb) {
+        _buildRankRecord(payload, findOneScoreRecord, (buildRankError, rankRecord)=>{
+          if(buildRankError) {
+            return cb(buildRankError);
+          }
+          return cb(null, rankRecord)
+        });
+      },
+      getRank: function(cb) {
         getRank(payload['LeaderboardId'],  payload['UserId'], (rankError, rank)=>{
           if(rankError) {
-            res.status(500).json(rankError);
-            return next();
+            let runtimeError = {
+              code: 500,
+              message: {
+                'Error': true,
+                'ErrorMessage': 'An error occurred while calculating the rank' + rankError
+              }
+            };
+            return cb(runtimeError);
           }
-          rankRecord['Rank'] = rank;
-          let ignoreFields = ['__v', '_id'];
-          ignoreFields.forEach((key) => {
-            delete rankRecord[key];
-          });  
-          res.statusCode = 200;
-          res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify(rankRecord));
-        })
-      })
+          return cb(null, rank)
+        });
+      }
+    }, function(err, results) {
+      if (err) {
+        res.status(err.code).json(err.message);
+        return next();
+      }
+      results['buildRankRecord']['Rank'] = results['getRank'];
+      let ignoreFields = ['__v', '_id'];
+      ignoreFields.forEach((key) => {
+        delete results['buildRankRecord'][key];
+      });  
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify(results['buildRankRecord']));
     });
   }
 }
@@ -111,8 +134,11 @@ function _saveScore(score, callback) {
   score.save((err, res)=>{
     if(err) {
       let runtimeError = {
-        'Error': true,
-        'ErrorMessage': 'An error occurred while saving Score' + err
+        code: 500,
+        message: {
+          'Error': true,
+          'ErrorMessage': 'An error occurred while saving Score' + err
+        }
       };
       return callback(runtimeError);
     }
@@ -137,8 +163,11 @@ function _findOneScoreRecord(query, callback) {
   Score.findOne(query, (err, res)=>{
     if(err) {
       let runtimeError = {
-        'Error': true,
-        'ErrorMessage': 'An error occurred while retrieving Score' + err
+        code: 500,
+        message: {
+          'Error': true,
+          'ErrorMessage': 'An error occurred while retrieving Score' + err
+        }
       };
       return callback(runtimeError);
     }
