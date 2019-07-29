@@ -56,8 +56,7 @@ swaggerTools.initializeMiddleware(swaggerDoc, function middleWareFunc(middleware
 
   // Serve the Swagger documents and Swagger UI
   app.use(middleware.swaggerUi(config.get('swagger_ui_config')));
-  app.use(function errorHandler(err, req, res, next) {
-    console.log(err);
+  app.use(function errorHandler(err, req, res, next) { 
     if(err.code === `SCHEMA_VALIDATION_FAILED`) {
       let swaggerValidationError = {
         'Error': true,
