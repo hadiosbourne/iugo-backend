@@ -50,14 +50,7 @@ class UserTransactionService {
       getRank: function(cb) {
         getRank(payload['LeaderboardId'],  payload['UserId'], (rankError, rank)=>{
           if(rankError) {
-            let runtimeError = {
-              code: 500,
-              message: {
-                'Error': true,
-                'ErrorMessage': 'An error occurred while calculating the rank' + rankError
-              }
-            };
-            return cb(runtimeError);
+            return cb(rankError);
           }
           return cb(null, rank)
         });
