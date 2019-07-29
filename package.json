@@ -1,6 +1,6 @@
 {
   "name": "iugo",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "iugo backend Microservice",
   "main": "index.js",
   "scripts": {
