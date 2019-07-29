@@ -31,18 +31,21 @@ class TransactionService {
     let payload = req.swagger.params.Transaction.value;
     _findOneTransactionRecord({'TransactionId': payload['TransactionId']}, (findError, findRecord)=>{
       if(findError) {
-        return next(findError);
+        res.status(500).json(findError);
+        return next();
       }
       if(!_.isEmpty(findRecord)) {
         let duplicationError = {
           'Error': true,
           'ErrorMessage': 'The transaction has already been submited for TransactionId: ' + payload['TransactionId']
         };
-        return next(duplicationError);
+        res.status(400).json(duplicationError);
+        return next();
       }
       _validateVerifier(payload, (validationError)=>{
         if(validationError) {
-          return next(validationError);
+          res.status(400).json(validationError);
+          return next();
         }
         let userTransaction = new Transaction(payload);
         userTransaction.save((err, result) => {
@@ -53,7 +56,6 @@ class TransactionService {
             };
             return next(runTimeError);
           }
-          console.log(result);
           let responseObject = {
             'Success': true
           };
@@ -81,18 +83,21 @@ class TransactionService {
     let userId = req.swagger.params.TransactionStats.value['UserId'];
     _findTransactionRecords({'UserId': userId}, (err, transactionRecord)=>{
       if (err) {
-        return next(err);
+        res.status(500).json(err);
+        return next();
       }
       if (_.isEmpty(transactionRecord)) {
         let resourceNotFound = {
           'Error': true,
           'ErrorMessage': 'No resource found for user with id: ' + userId
         };
-        return callback(resourceNotFound);
+        res.status(404).json(resourceNotFound);
+        return next();
       }
       _countTransactionRecord({'UserId': userId}, (countError, countRecord)=>{
         if(countError) {
-          return callback(countError);
+          res.status(500).json(countError);
+          return next();
         }
         let currencySum = 0;
         transactionRecord.forEach(element => {
@@ -131,7 +136,6 @@ function _validateVerifier(payload, callback) {
   let hashValue = crypto.createHash('sha1')
     .update(secretKey + payload['TransactionId'] +  payload['UserId'], payload['CurrencyAmount'])
     .digest('hex');
-  console.log(hashValue);
   if(payload['Verifier'] !== hashValue) {
     let error = {
       'Error': true,

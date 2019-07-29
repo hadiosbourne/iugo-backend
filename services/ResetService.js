@@ -36,7 +36,8 @@ class ResetService {
           'Error': true,
           'ErrorMessage': 'There was an error while reseting database: ' + database + ' ' + err
         };
-        return next(runtimeError)
+        res.status(500).json(runtimeError);
+        return next();
       }
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');

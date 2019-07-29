@@ -1,12 +1,9 @@
 'use strict';
 
 const {Score} = require('../models');
-const _ = require('lodash');
 
 /**
  * Helper for doing getList requests
- *
- * Help to build up rellink
  *
  * @author Hadi Shayesteh <hadishayesteh@gmail.com>
  * @since  27 July 2019
@@ -35,7 +32,6 @@ module.exports = {
       .exec((err, results) => {
         if (err) {
           let runTimeError = 'An error occurred while retrieving all countries' + err;
-            
           return callback(runTimeError);
         }
         results.forEach(record => {

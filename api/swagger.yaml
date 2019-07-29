@@ -3,7 +3,6 @@ info:
   description: "IUGO API"
   version: "1.0.0"
   title: "IUGO backend Service"
-# host: "aa6e5850.ngrok.io"
 host: "localhost:5000"
 basePath: "/v1"
 schemes:
@@ -39,10 +38,6 @@ paths:
           description: "The current unix timestamp will be returned"
           schema:
             $ref: "#/definitions/server_timestamps_response"
-        default:
-          description: "unexpected error"
-          schema:
-            $ref: "#/definitions/server_error_model"
       tags:
       - "Timestamp"
       summary: "Gets the current unix timestamp"
@@ -76,7 +71,7 @@ paths:
         - $ref: "#/parameters/user_transaction_stats_body_param"
       responses:
         200:
-          description: "user transaction was logged"
+          description: "user transaction stats returned"
           schema:
             $ref: "#/definitions/user_transaction_stats_response_def"
       tags:
@@ -94,7 +89,7 @@ paths:
         - $ref: "#/parameters/user_score_post_body_param"
       responses:
         200:
-          description: "user transaction was logged"
+          description: "score was logged"
           schema:
             $ref: "#/definitions/user_score_post_response_def"
       tags:
@@ -129,7 +124,7 @@ paths:
       parameters:
         - $ref: "#/parameters/user_save_body_param"
       responses:
-        200:
+        201:
           description: "user save result"
           schema:
             $ref: "#/definitions/user_save_response_def"
@@ -148,7 +143,7 @@ paths:
         - $ref: "#/parameters/user_load_body_param"
       responses:
         200:
-          description: "user save result"
+          description: "user load result"
           schema:
             $ref: "#/definitions/user_load_response_def"
       tags:
@@ -290,8 +285,6 @@ definitions:
         minimum: 1
       CurrencySum:
         type: integer
-        default: 1
-        minimum: 1
       TransactionCount:
         type: integer
         default: 1
@@ -304,6 +297,7 @@ definitions:
       UserId:
         type: integer
         minimum: 1
+        default: 1
   user_score_post_def:
     description: user score post
     type: object

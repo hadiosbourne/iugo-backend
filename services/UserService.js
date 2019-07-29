@@ -28,9 +28,10 @@ class UserService {
     let payload = req.swagger.params.saveUser.value;
     _upsertUserRecord(payload, payload['UserId'],(err, result)=>{
       if(err) {
-        return next(err);
+        res.status(500).json(err);
+        return next();
       }
-      res.statusCode = 200;
+      res.statusCode = 201;
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify({'Success': true}));
     })
@@ -52,7 +53,8 @@ class UserService {
     let payload = req.swagger.params.loadUser.value;
     _findUserRecord({'UserId': payload['UserId']}, (findError, findRecord)=>{
       if(findError) {
-        return next(findError);
+        res.status(500).json(findError);
+        return next();
       }
       let response;
       if(_.isEmpty(findRecord)) {

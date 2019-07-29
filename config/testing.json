@@ -9,5 +9,6 @@
         "autoIndex": false
       }
     }
-  }
+  },
+  "secret_key": "testingKey"
 }

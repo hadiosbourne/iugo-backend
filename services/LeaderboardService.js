@@ -31,22 +31,26 @@ class LeaderboardService {
     let UserId = payload['UserId'];
     _findOneScore({'LeaderboardId': leaderBoardId, 'UserId': UserId}, (scoreError, scoreRecord)=>{
       if(scoreError) {
-        return next(scoreError);
+        res.status(500).json(scoreError);
+        return next();
       }
       if(_.isEmpty(scoreRecord)) {
         let resourceNotFound = {
           'Error': true,
           'ErrorMessage': 'the given UserId ' + UserId + 'does not have value for LeaderBoard ' + leaderBoardId
         };
-        return callback(resourceNotFound);
+        res.status(404).json(resourceNotFound);
+        return next();
       }
       _findScoreRecords({'LeaderboardId': leaderBoardId}, payload['Offset'], payload['Limit'], (findError, findRecord)=>{
         if(findError) {
-          return next(findError);
+          res.status(500).json(findError);
+          return next();
         }
         getRank(leaderBoardId, UserId, (rankError, rank)=>{
           if(rankError) {
-            return next(rankError);
+            res.status(500).json(rankError);
+            return next();
           }
           res.statusCode = 200;
           res.setHeader('Content-Type', 'application/json');

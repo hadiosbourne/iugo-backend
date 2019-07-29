@@ -29,15 +29,18 @@ class UserTransactionService {
     let payload = req.swagger.params.ScorePost.value;
     _findOneScoreRecord({'LeaderboardId': payload['LeaderboardId'], 'UserId': payload['UserId']}, (findError, findRecord)=>{
       if(findError) {
-        return next(findError);
+        res.status(500).json(findError);
+        return next();
       }
-      _buildRankRecord(payload, findRecord, (rankError, rankRecord)=>{
-        if(rankError) {
-          return callback(rankError);
+      _buildRankRecord(payload, findRecord, (buildRankError, rankRecord)=>{
+        if(buildRankError) {
+          res.status(500).json(buildRankError);
+          return next();
         }
         getRank(payload['LeaderboardId'],  payload['UserId'], (rankError, rank)=>{
           if(rankError) {
-            return next(rankError);
+            res.status(500).json(rankError);
+            return next();
           }
           rankRecord['Rank'] = rank;
           let ignoreFields = ['__v', '_id'];

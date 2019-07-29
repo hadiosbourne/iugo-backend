@@ -1,6 +1,6 @@
 'use strict';
 
-const app = require('connect')();
+const app = require('express')();
 const http = require('http');
 const swaggerTools = require('swagger-tools');
 const jsyaml = require('js-yaml');
@@ -29,7 +29,6 @@ mongoose.connection.on(
 );
 
 // The Swagger document (require it, build it programmatically, fetch it from a URL, ...)
-// eslint-disable-next-line no-sync
 const spec = fs.readFileSync('./api/swagger.yaml', 'utf8');
 const swaggerDoc = jsyaml.safeLoad(spec);
 
@@ -60,10 +59,8 @@ swaggerTools.initializeMiddleware(swaggerDoc, function middleWareFunc(middleware
 
   // Start the server
   http.createServer(app).listen(serverPort, function createFunc() {
-    // eslint-disable-next-line no-console
     console.log(`Your server is listening on port ${serverPort} (http://localhost:${serverPort})`);
     // console.log('Your server is listening on port %d (http://localhost:%d)', serverPort, serverPort);
-    // eslint-disable-next-line no-console
     console.log('Swagger-ui is available on http://localhost:%d/docs', serverPort);
   });
 });
