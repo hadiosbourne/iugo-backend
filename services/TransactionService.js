@@ -33,27 +33,15 @@ class TransactionService {
     async.parallel({
       findOneTransactionRecord: async.apply(_findOneTransactionRecord, {'TransactionId': payload['TransactionId']}),
       validateVerifier: async.apply(_validateVerifier, payload)
-    }, (err, results) => {
+    }, (err) => {
       if (err) {
         res.status(err.code).json(err.message);
         return next();
       }
-      if(!_.isEmpty(results['findOneTransactionRecord'])) {
-        let duplicationError = {
-          'Error': true,
-          'ErrorMessage': 'The transaction has already been submited for TransactionId: ' + payload['TransactionId']
-        };
-        res.status(400).json(duplicationError);
-        return next();
-      }
-      let userTransaction = new Transaction(payload);
-      userTransaction.save((err, result) => {
-        if (err) {
-          let runTimeError = {
-            'Error': true,
-            'ErrorMessage': 'unexpected error happened when saving the Transaction record ' + err
-          };
-          return next(runTimeError);
+      _saveTransaction(payload, (saveError)=>{
+        if (saveError) {
+          res.status(saveError.code).json(saveError.message);
+          return next();
         }
         let responseObject = {
           'Success': true
@@ -87,24 +75,8 @@ class TransactionService {
         res.status(err.code).json(err.message);
         return next();
       }
-      if (_.isEmpty(results['findTransactionRecords'])) {
-        let resourceNotFound = {
-          'Error': true,
-          'ErrorMessage': 'No resource found for user with id: ' + userId
-        };
-        res.status(404).json(resourceNotFound);
-        return next();
-      }
 
-      let currencySum = 0;
-      results['findTransactionRecords'].forEach(element => {
-        currencySum = currencySum + element['CurrencyAmount']
-      });
-      let finalResult = {
-        'UserId': userId,
-        'TransactionCount': results['countTransactionRecord'],
-        'CurrencySum': currencySum
-      };
+      let finalResult = _buildFinalResponse(userId, results['findTransactionRecords'], results['countTransactionRecord']);
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify(finalResult));
@@ -114,6 +86,62 @@ class TransactionService {
 
 module.exports = TransactionService;
 
+/**
+ * Saves the transaction record
+ *
+ * @param {object} payload - The payload object
+ * @param {string} transactionRecord - The callback
+ * @param {string} transactionCount - The callback
+
+ * @author Hadi Shayesteh <hadishayesteh@gmail.com>
+ * @since  27 July 2019
+ *
+ * @private
+ *
+ * @return void
+ */
+function _saveTransaction(payload, callback) {
+  let userTransaction = new Transaction(payload);
+  userTransaction.save((err, result) => {
+    if (err) {
+      let error = {
+        code: 500,
+        message: {
+          'Error': true,
+          'ErrorMessage': 'unexpected error happened when saving the Transaction record ' + err
+        }
+      };
+      return callback(error);
+    }
+    return callback(null, result);
+  });
+}
+
+/**
+ * Builds up the final response to be returned by the postUserTransactionStats route
+ *
+ * @param {string} userId - The  userId
+ * @param {array} transactionRecord - The transactionRecord
+ * @param {string} transactionCount - The transactionRecord
+
+ * @author Hadi Shayesteh <hadishayesteh@gmail.com>
+ * @since  27 July 2019
+ *
+ * @private
+ *
+ * @return object
+ */
+function _buildFinalResponse(userId, transactionRecord, transactionCount) {
+  let currencySum = 0;
+  transactionRecord.forEach(element => {
+    currencySum = currencySum + element['CurrencyAmount']
+  });
+  return {
+    'UserId': userId,
+    'TransactionCount': transactionCount,
+    'CurrencySum': currencySum
+  };
+}
 
 /**
  * validates the verifies string
@@ -169,6 +197,16 @@ function _findOneTransactionRecord(query, callback) {
         }
       };
       return callback(error);
+    }
+    if(!_.isEmpty(res)) {
+      let duplicationError = {
+        code: 400,
+        message: {
+          'Error': true,
+          'ErrorMessage': 'The transaction has already been submited for TransactionId'
+        }
+      };
+      return callback(duplicationError);
     }
     return callback(null, res);
   })
@@ -229,6 +267,16 @@ function _findTransactionRecords(query, callback) {
         }
       };
       return callback(error);
+    }
+    if (_.isEmpty(results)) {
+      let resourceNotFound = {
+        code: 404,
+        message: {
+          'Error': true,
+          'ErrorMessage': 'No resource found for user'
+        }
+      };
+      return callback(resourceNotFound);
     }
     return callback(null, results);
   });
