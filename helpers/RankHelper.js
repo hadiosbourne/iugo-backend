@@ -3,7 +3,7 @@
 const {Score} = require('../models');
 
 /**
- * Helper for doing getList requests
+ * Helper for returning the rank
  *
  * @author Hadi Shayesteh <hadishayesteh@gmail.com>
  * @since  27 July 2019
@@ -13,7 +13,7 @@ const {Score} = require('../models');
 module.exports = {
 
   /**
-   * This will return the getlist rel link
+   * This will calculate the ranks and returns the result
    *
    * @param {Number} board - The count of getList results
    * @param {Number} userId - The base url that does not yet have the api version set onto it.
@@ -31,8 +31,14 @@ module.exports = {
       .sort({'Score': -1 })
       .exec((err, results) => {
         if (err) {
-          let runTimeError = 'An error occurred while retrieving all countries' + err;
-          return callback(runTimeError);
+          let runtimeError = {
+            code: 500,
+            message: {
+              'Error': true,
+              'ErrorMessage': 'An error occurred while calculating ranks ' + err
+            }
+          };
+          return callback(runtimeError);
         }
         results.forEach(record => {
           rank++;
