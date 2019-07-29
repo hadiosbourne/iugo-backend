@@ -56,7 +56,16 @@ swaggerTools.initializeMiddleware(swaggerDoc, function middleWareFunc(middleware
 
   // Serve the Swagger documents and Swagger UI
   app.use(middleware.swaggerUi(config.get('swagger_ui_config')));
-
+  app.use(function errorHandler(err, req, res, next) { 
+    if(err.code === `SCHEMA_VALIDATION_FAILED`) {
+      let swaggerValidationError = {
+        'Error': true,
+        'ErrorMessage': err.message + ', ' + err.results.errors[0].message
+      };
+      res.status(400).json(swaggerValidationError);
+    }
+    next();
+  });
   // Start the server
   http.createServer(app).listen(serverPort, function createFunc() {
     console.log(`Your server is listening on port ${serverPort} (http://localhost:${serverPort})`);
