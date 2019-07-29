@@ -6,7 +6,7 @@
  * @author Hadi Shayesteh <hadishayesteh@gmail.com>
  * @since  27 July 2018
  */
-class TimestampStatusService {
+ class TimestampStatusService {
 
   constructor() {}
 
@@ -22,13 +22,21 @@ class TimestampStatusService {
    *
    * @return void
    */
-  getTimestamp(req, res, next) {
-    let timestampObject = {
-      'Timestamp': new Date().getTime()
-    };
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(timestampObject));
+ async getTimestamp(req, res, next) {
+    try {
+      const time = await new Date().getTime();
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.json({
+        'Timestamp': time
+      });
+    } catch (err) {
+      let error = {
+        'Error': true,
+        'ErrorMessage': 'An error occurred while retrieving timestamp' + err
+      };
+      next(error) 
+    }
   }
 
 }
