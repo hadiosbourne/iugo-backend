@@ -93,8 +93,10 @@ function _upsertUserRecord(payload, userId, callback) {
     if(_.isEmpty(findRecord)) {
       saveRecord = new User(payload);
     } else {
-      saveRecord = _buildupUpsertObject(findRecord, payload)
+      var upsertRecord = _buildupUpsertObject(payload, findRecord)
+      saveRecord = new User(upsertRecord);
     }
+
     return _saveUser(saveRecord, callback);
   });
 }
@@ -112,16 +114,10 @@ function _upsertUserRecord(payload, userId, callback) {
  *
  * @return void
  */
-function _buildupUpsertObject(existingRecord, newRecord) {
-  for (var i=1; i<arguments.length; i++) {
-    for (var prop in arguments[i]) {
-      var val = arguments[i][prop];
-      if (typeof val == "object")
-      _buildupUpsertObject(existingRecord[prop], val);
-      else
-      existingRecord[prop] = newRecord[prop];
-    }
-  }
+function _buildupUpsertObject(newRecord, existingRecord) {
+  _.forOwn(newRecord['Data'], (value, key) => {
+      existingRecord['Data'][key] = value;    
+  })
   return existingRecord;
 }
 
