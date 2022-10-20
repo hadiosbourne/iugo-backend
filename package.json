@@ -20,7 +20,7 @@
     "cors": "^2.8.5",
     "js-yaml": "3.3.0",
     "lodash": "4.17.4",
-    "mongoose": "4.13.13",
+    "mongoose": "4.13.21",
     "request": "2.81.0",
     "swagger-tools": "0.10.1",
     "express": "4.17.1"
