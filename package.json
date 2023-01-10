@@ -16,19 +16,19 @@
   "dependencies": {
     "async": "2.3.0",
     "config": "1.21.0",
-    "connect": "3.2.0",
+    "connect": "3.7.0",
     "cors": "^2.8.5",
     "js-yaml": "3.3.0",
     "lodash": "4.17.4",
     "mongoose": "4.13.13",
     "request": "2.81.0",
-    "swagger-tools": "0.10.1",
+    "swagger-tools": "0.10.4",
     "express": "4.17.1"
   },
   "devDependencies": {
     "chai": "3.5.0",
     "istanbul": "0.4.5",
-    "mocha": "2.4.5",
+    "mocha": "10.2.0",
     "nock": "8.0.0",
     "sinon": "4.2.1",
     "sinon-chai": "2.8.0",
